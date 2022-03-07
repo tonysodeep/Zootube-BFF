@@ -6,6 +6,15 @@ const videoController = require('../controllers/videos-controller');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/videos/:
+ *  get:
+ *    description:Get all video
+ *    response:
+ *      200:
+ *        description:Success
+ */
 router.get('/', videoController.getVideos);
 
 router.get('/:vid', videoController.getVideoById);

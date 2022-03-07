@@ -1,12 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
 
 const videosRoute = require('./routes/videos-route');
 
 const app = express();
 
 app.use(bodyParser.json());
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Zootube-BFF',
+      version: '1.0.0',
+    },
+    servers: [
+      {
+        url: 'http://localhost:5069',
+      },
+    ],
+  },
+  apis: ['./app.js'],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+console.log(swaggerSpec);
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use('/api/videos', videosRoute);
 // app.use('/api/users', userRoutes);
