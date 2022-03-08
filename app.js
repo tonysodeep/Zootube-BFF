@@ -3,13 +3,14 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const videosRoute = require('./routes/videos-route');
+const userRoute = require('./routes/users-route');
 
 const app = express();
 
 app.use(bodyParser.json());
 
 app.use('/api/videos', videosRoute);
-// app.use('/api/users', userRoutes);
+app.use('/api/users', userRoute);
 
 //send error cho route ko tìm thấy
 app.use((req, res, next) => {
