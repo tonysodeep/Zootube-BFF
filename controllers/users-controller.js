@@ -4,31 +4,40 @@ const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-errors');
 const User = require('../models/user');
 
-const DUMMY_USERS = [
-  {
-    id: 'u1',
-    name: 'tony nguyen',
-    email: 'hynguyen@gmail.com',
-    password: 'test',
-  },
-  {
-    id: 'u2',
-    name: 'bao nguyen',
-    email: 'hynguyen123@gmail.com',
-    password: 'test',
-  },
-];
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, '-password');
+  } catch (err) {
+    const error = new HttpError(
+      'fetching user fail, please try agian later',
+      500
+    );
+    return next(error);
+  }
 
-const getUsers = (req, res, next) => {
-  res.json({ user: DUMMY_USERS });
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
-  const identifyUser = DUMMY_USERS.find((u) => u.email === email);
-  if (!identifyUser || identifyUser.password !== password) {
-    return next(new HttpError('Could not find user ', 401));
+
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError('Siging up fail, please try again later', 500);
+    return next(error);
   }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      'invalid credentials, Could not log you in',
+      401
+    );
+    return next(error);
+  }
+
   res.json({ message: 'logged in' });
 };
 
@@ -41,6 +50,7 @@ const signup = async (req, res, next) => {
   }
 
   const { username, email, password, places } = req.body;
+
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
