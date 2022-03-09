@@ -8,7 +8,7 @@ const { default: mongoose } = require('mongoose');
 const getVideos = async (req, res, next) => {
   let videos;
   try {
-    videos = await Video.find();
+    videos = await Video.find().populate('creator','username');
   } catch (err) {
     const error = new HttpError(
       'Opps something went wrong could not get all places!!!',
@@ -84,8 +84,8 @@ const createVideo = async (req, res, next) => {
 
   //cái này mo phong lúc  uppload video lên s3 rồi lấy video url
   let resource = {
-    imageUrl: 'imageUrl',
-    videoUrl: 'videoUrl',
+    imageUrl: 'https://richardhill.cz/wp-content/uploads/2017/02/Video-Icon-crop.png',
+    videoUrl: 'https://www.youtube.com/watch?v=Pv7JKxRd7jo',
   };
 
   const createdVideo = new Video({

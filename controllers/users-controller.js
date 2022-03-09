@@ -45,7 +45,7 @@ const signup = async (req, res, next) => {
 
   if (!errors.isEmpty()) {
     console.log(errors);
-    return next(new HttpError('Invalid email address', 422));
+    return next(new HttpError('Invalid input, please check your data again', 422));
   }
 
   const { username, email, password } = req.body;
