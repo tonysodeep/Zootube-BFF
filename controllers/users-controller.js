@@ -49,7 +49,7 @@ const signup = async (req, res, next) => {
     return next(new HttpError('Invalid email address', 422));
   }
 
-  const { username, email, password, places } = req.body;
+  const { username, email, password } = req.body;
 
   let existingUser;
   try {
@@ -73,7 +73,7 @@ const signup = async (req, res, next) => {
     userImage:
       'https://media.istockphoto.com/vectors/user-icon-flat-style-isolated-on-white-background-vector-id1084418050?k=20&m=1084418050&s=612x612&w=0&h=pm3Ov7GL8rnKKqe98FEfoya6A6UK-z4Iv60LPbj38GE=',
     password,
-    places,
+    places: [],
   });
 
   try {

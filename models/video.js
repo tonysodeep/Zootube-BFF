@@ -10,7 +10,7 @@ const videoSchema = new Schema({
     imageUrl: { type: String, required: true },
     videoUrl: { type: String, required: true },
   },
-  creatorId: { type: String, required: true },
+  creatorId: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
 });
 
 module.exports = mongoose.model('Video', videoSchema);

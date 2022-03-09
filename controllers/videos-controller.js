@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-errors');
 const Video = require('../models/video');
+const User = require('../models/user');
+const { default: mongoose } = require('mongoose');
 
 const getVideos = async (req, res, next) => {
   let videos;
@@ -90,8 +92,26 @@ const createVideo = async (req, res, next) => {
     creatorId,
   });
 
+  let user;
   try {
-    await createdVideo.save();
+    user = await User.findById(creatorId);
+  } catch (err) {
+    const error = new HttpError('Creating place fail, please try agian', 500);
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError('could not find user for provided id', 404);
+    return next(error);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdVideo.save({ session: sess });
+    user.places.push(createdVideo);
+    await user.save({ session: sess });
+    sess.commitTransaction();
   } catch (err) {
     const error = new HttpError('creating video fail', 500);
     return next(error);
