@@ -52,21 +52,24 @@ const getVideoById = async (req, res, next) => {
 const getVideosByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  let userVideos;
+  let userWithVideos;
   try {
-    userVideos = await Video.find({ creatorId: userId });
+    userWithVideos = await User.findById(userId).populate('videos');
   } catch (err) {
     const error = new HttpError('fetching data fail', 500);
+    return next(error);
   }
 
-  if (!userVideos || userVideos.length === 0) {
+  if (!userWithVideos || userWithVideos.videos.length === 0) {
     return next(
       new HttpError('Could not find videos for the provided user id', 404)
     );
   }
 
   res.json({
-    userVideos: userVideos.map((video) => video.toObject({ getters: true })),
+    userVideos: userWithVideos.videos.map((video) =>
+      video.toObject({ getters: true })
+    ),
   });
 };
 
@@ -77,7 +80,7 @@ const createVideo = async (req, res, next) => {
       new HttpError('Invalid input, please check your input data', 422)
     );
   }
-  const { title, description, creatorId } = req.body;
+  const { title, description, creator } = req.body;
 
   //cái này mo phong lúc  uppload video lên s3 rồi lấy video url
   let resource = {
@@ -89,12 +92,12 @@ const createVideo = async (req, res, next) => {
     title,
     description,
     resource,
-    creatorId,
+    creator,
   });
 
   let user;
   try {
-    user = await User.findById(creatorId);
+    user = await User.findById(creator);
   } catch (err) {
     const error = new HttpError('Creating place fail, please try agian', 500);
     return next(error);
@@ -109,9 +112,9 @@ const createVideo = async (req, res, next) => {
     const sess = await mongoose.startSession();
     sess.startTransaction();
     await createdVideo.save({ session: sess });
-    user.places.push(createdVideo);
+    user.videos.push(createdVideo);
     await user.save({ session: sess });
-    sess.commitTransaction();
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError('creating video fail', 500);
     return next(error);
@@ -162,13 +165,33 @@ const updateVideo = async (req, res, next) => {
 };
 
 const deleteVideo = async (req, res, next) => {
-  const videoId = req.params.pid;
-
+  const videoId = req.params.vid;
+  console.log(videoId);
+  let video;
   try {
-    await Video.findOneAndRemove(videoId);
+    video = await Video.findById(videoId).populate('creator');
   } catch (err) {
     const error = new HttpError(
       'Something went wrong could not delete place',
+      500
+    );
+    return next(error);
+  }
+  if (!video) {
+    const error = new HttpError('could not find video for this id', 404);
+    return next(error);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await video.remove({ session: sess });
+    video.creator.videos.pull(video);
+    await video.creator.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError(
+      'Could not delete video please try agian later',
       500
     );
     return next(error);
