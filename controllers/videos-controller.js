@@ -121,7 +121,6 @@ const createVideo = async (req, res, next) => {
     await user.save({ session: sess });
     await sess.commitTransaction();
   } catch (err) {
-    console.log(err);
     const error = new HttpError('creating video fail', 500);
     return next(error);
   }
@@ -172,7 +171,6 @@ const updateVideo = async (req, res, next) => {
 
 const deleteVideo = async (req, res, next) => {
   const videoId = req.params.vid;
-  console.log(videoId);
   let video;
   try {
     video = await Video.findById(videoId).populate('creator');
