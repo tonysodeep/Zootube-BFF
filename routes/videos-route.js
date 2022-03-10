@@ -8,12 +8,13 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/videos/:
+ * /:
  *  get:
- *    description:Get all video
+ *    description:  Get all video !
  *    response:
  *      200:
- *        description:Success
+ *        description: Success!
+ *    
  */
 router.get('/', videoController.getVideos);
 

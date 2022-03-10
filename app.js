@@ -3,12 +3,11 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
-
 const videosRoute = require('./routes/videos-route');
+const fs = require('fs');
 
-const app = express();
-
-app.use(bodyParser.json());
+// const swaggerFile = fs.readFileSync('./swagger.json', 'utf-8');
+// const swaggerJSON = JSON.parse(swaggerFile);
 
 const options = {
   definition: {
@@ -23,11 +22,14 @@ const options = {
       },
     ],
   },
-  apis: ['./app.js'],
+  apis: ['./routes/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
-console.log(swaggerSpec);
+
+const app = express();
+
+app.use(bodyParser.json());
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 

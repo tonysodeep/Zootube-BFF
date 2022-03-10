@@ -1,0 +1,16 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "Backed for ",
+    "version": "1.0.0",
+    "title": "Zootube-BFF"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5069/api"
+    }
+  ],
+  "path": {
+    "/": {}
+  }
+}
