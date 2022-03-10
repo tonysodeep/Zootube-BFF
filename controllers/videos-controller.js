@@ -53,8 +53,10 @@ const getVideosByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
   let userWithVideos;
+  let user;
   try {
     userWithVideos = await User.findById(userId).populate('videos');
+    user = await User.findById(userId);
   } catch (err) {
     const error = new HttpError('fetching data fail', 500);
     return next(error);
@@ -67,6 +69,8 @@ const getVideosByUserId = async (req, res, next) => {
   }
 
   res.json({
+    name: user.username,
+    imageUrl: user.userImage,
     userVideos: userWithVideos.videos.map((video) =>
       video.toObject({ getters: true })
     ),
