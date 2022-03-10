@@ -8,7 +8,7 @@ const { default: mongoose } = require('mongoose');
 const getVideos = async (req, res, next) => {
   let videos;
   try {
-    videos = await Video.find().populate('creator','username');
+    videos = await Video.find().populate('creator', ['username', 'id']);
   } catch (err) {
     const error = new HttpError(
       'Opps something went wrong could not get all places!!!',
@@ -84,7 +84,8 @@ const createVideo = async (req, res, next) => {
 
   //cái này mo phong lúc  uppload video lên s3 rồi lấy video url
   let resource = {
-    imageUrl: 'https://richardhill.cz/wp-content/uploads/2017/02/Video-Icon-crop.png',
+    imageUrl:
+      'https://richardhill.cz/wp-content/uploads/2017/02/Video-Icon-crop.png',
     videoUrl: 'https://www.youtube.com/watch?v=Pv7JKxRd7jo',
   };
 
@@ -116,6 +117,7 @@ const createVideo = async (req, res, next) => {
     await user.save({ session: sess });
     await sess.commitTransaction();
   } catch (err) {
+    console.log(err);
     const error = new HttpError('creating video fail', 500);
     return next(error);
   }

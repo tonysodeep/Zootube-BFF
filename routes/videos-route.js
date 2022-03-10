@@ -15,8 +15,8 @@ router.get('/user/:uid', videoController.getVideosByUserId);
 router.post(
   '/',
   [
-    check('title').not().isEmpty(),
-    check('description').isLength({ min: 5 }).not().isEmpty(),
+    check('title').not().isEmpty().trim(),
+    check('description').isLength({ min: 5 }).not().isEmpty().trim(),
   ],
   videoController.createVideo
 );

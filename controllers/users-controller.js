@@ -37,7 +37,10 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ message: 'logged in' });
+  res.json({
+    message: 'logged in',
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 const signup = async (req, res, next) => {
@@ -45,7 +48,9 @@ const signup = async (req, res, next) => {
 
   if (!errors.isEmpty()) {
     console.log(errors);
-    return next(new HttpError('Invalid input, please check your data again', 422));
+    return next(
+      new HttpError('Invalid input, please check your data again', 422)
+    );
   }
 
   const { username, email, password } = req.body;
