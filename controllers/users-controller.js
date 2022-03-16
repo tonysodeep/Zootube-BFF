@@ -73,8 +73,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User({
     username,
     email,
-    userImage:
-      'https://media.istockphoto.com/vectors/user-icon-flat-style-isolated-on-white-background-vector-id1084418050?k=20&m=1084418050&s=612x612&w=0&h=pm3Ov7GL8rnKKqe98FEfoya6A6UK-z4Iv60LPbj38GE=',
+    userImage: req.file.path,
     password,
     places: [],
   });

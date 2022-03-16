@@ -62,7 +62,7 @@ const getVideosByUserId = async (req, res, next) => {
     return next(error);
   }
 
-  if (!userWithVideos || userWithVideos.videos.length === 0) {
+  if (!userWithVideos) {
     return next(
       new HttpError('Could not find videos for the provided user id', 404)
     );
