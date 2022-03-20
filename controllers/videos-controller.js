@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const fs = require('fs');
 const cloudinary = require('../cloudinary');
 
 const HttpError = require('../models/http-errors');
@@ -88,16 +89,24 @@ const createVideo = async (req, res, next) => {
   const { title, description, creator } = req.body;
 
   //cái này mo phong lúc  uppload video lên s3 rồi lấy video url
+  let uploader;
   try {
-    const uploader = await cloudinary.uploads(req.file.path, 'Images');
+    uploader = await cloudinary.uploads(
+      req.file.path,
+      'Zootube-resources/images/videos-thumbnail'
+    );
     console.log('uploader', uploader);
   } catch (err) {
     console.log(err);
     return next(new HttpError('error when upload image', 500));
+  } finally {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
   }
 
   let resource = {
-    imageUrl: req.file.path,
+    imageUrl: uploader.url,
     videoUrl: 'https://www.youtube.com/watch?v=Pv7JKxRd7jo',
   };
 

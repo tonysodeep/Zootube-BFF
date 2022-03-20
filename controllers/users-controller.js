@@ -1,4 +1,6 @@
 const { validationResult } = require('express-validator');
+const cloudinary = require('../cloudinary');
+const fs = require('fs');
 
 const HttpError = require('../models/http-errors');
 const User = require('../models/user');
@@ -70,10 +72,26 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
+  let uploader;
+  try {
+    uploader = await cloudinary.uploads(
+      req.file.path,
+      'Zootube-resources/images/users'
+    );
+    console.log('uploader', uploader);
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError('error when upload image', 500));
+  } finally {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
+
   const createdUser = new User({
     username,
     email,
-    userImage: req.file.path,
+    userImage: uploader.url,
     password,
     places: [],
   });
