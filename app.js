@@ -36,9 +36,7 @@ app.use((req, res, next) => {
 //send error cho tất cả path mà error
 app.use((error, req, res, next) => {
   if (req.file) {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
+    fs.unlink(req.file.path, (err) => {});
   }
   if (res.headerSent) {
     return next(error);

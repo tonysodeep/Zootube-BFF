@@ -113,14 +113,10 @@ const signup = async (req, res, next) => {
       req.file.path,
       'Zootube-resources/images/users'
     );
-    console.log('uploader', uploader);
   } catch (err) {
-    console.log(err);
     return next(new HttpError('error when upload image', 500));
   } finally {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
+    fs.unlink(req.file.path, (err) => {});
   }
 
   let hashedPassword;

@@ -71,8 +71,6 @@ const getVideosByUserId = async (req, res, next) => {
     );
   }
 
-  console.log(user);
-
   res.json({
     name: user.username,
     imageUrl: user.userImage,
@@ -98,14 +96,10 @@ const createVideo = async (req, res, next) => {
       req.file.path,
       'Zootube-resources/images/videos-thumbnail'
     );
-    console.log('uploader', uploader);
   } catch (err) {
-    console.log(err);
     return next(new HttpError('error when upload image', 500));
   } finally {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
+    fs.unlink(req.file.path, (err) => {});
   }
 
   let resource = {
