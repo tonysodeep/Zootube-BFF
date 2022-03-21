@@ -6,6 +6,7 @@ const HttpError = require('../models/http-errors');
 const Video = require('../models/video');
 const User = require('../models/user');
 const { default: mongoose } = require('mongoose');
+const video = require('../models/video');
 
 const getVideos = async (req, res, next) => {
   let videos;
@@ -165,6 +166,11 @@ const updateVideo = async (req, res, next) => {
     return next(error);
   }
 
+  if (updatedVideo.creator.toString() !== req.userData.userId) {
+    const error = new HttpError('You are not allowed to edit this place', 401);
+    return next(error);
+  }
+
   updatedVideo.title = title;
   updatedVideo.description = description;
 
@@ -197,6 +203,14 @@ const deleteVideo = async (req, res, next) => {
   }
   if (!video) {
     const error = new HttpError('could not find video for this id', 404);
+    return next(error);
+  }
+
+  if (video.creator.id !== req.userData.userId) {
+    const error = new HttpError(
+      'You are not allowed to delete this place',
+      401
+    );
     return next(error);
   }
 
