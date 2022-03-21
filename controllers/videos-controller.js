@@ -56,6 +56,7 @@ const getVideosByUserId = async (req, res, next) => {
 
   let userWithVideos;
   let user;
+
   try {
     userWithVideos = await User.findById(userId).populate('videos');
     user = await User.findById(userId);
@@ -69,6 +70,8 @@ const getVideosByUserId = async (req, res, next) => {
       new HttpError('Could not find videos for the provided user id', 404)
     );
   }
+
+  console.log(user);
 
   res.json({
     name: user.username,

@@ -5,12 +5,15 @@ const { check } = require('express-validator');
 const videoController = require('../controllers/videos-controller');
 
 const fileUpload = require('../middleware/file-upload');
+const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router();
 
 router.get('/', videoController.getVideos);
 
 router.get('/:vid', videoController.getVideoById);
+
+router.use(checkAuth);
 
 router.get('/user/:uid', videoController.getVideosByUserId);
 

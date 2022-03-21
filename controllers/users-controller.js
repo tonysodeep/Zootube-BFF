@@ -1,4 +1,6 @@
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const cloudinary = require('../cloudinary');
 const fs = require('fs');
 
@@ -31,7 +33,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
     const error = new HttpError(
       'invalid credentials, Could not log you in',
       401
@@ -39,9 +41,42 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (err) {
+    const error = new HttpError(
+      'could not log you in, please try agian later',
+      500
+    );
+    return next(error);
+  }
+
+  if (!isValidPassword) {
+    const error = new HttpError(
+      'invalid credentials, Could not log you in',
+      401
+    );
+    return next(error);
+  }
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      'suppersecret_dont_share',
+      {
+        expiresIn: '1h',
+      }
+    );
+  } catch (err) {
+    const error = new HttpError('Logging in fail fail', 500);
+    return next(error);
+  }
+
   res.json({
-    message: 'logged in',
-    user: existingUser.toObject({ getters: true }),
+    userId: existingUser.id,
+    email: existingUser.email,
+    token: token,
   });
 };
 
@@ -88,11 +123,19 @@ const signup = async (req, res, next) => {
     });
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (err) {
+    const error = new HttpError('Could not created user please try again', 500);
+    return next(error);
+  }
+
   const createdUser = new User({
     username,
     email,
     userImage: uploader.url,
-    password,
+    password: hashedPassword,
     places: [],
   });
 
@@ -103,7 +146,23 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      'suppersecret_dont_share',
+      {
+        expiresIn: '1h',
+      }
+    );
+  } catch (err) {
+    const error = new HttpError('Siging up fail', 500);
+    return next(error);
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token: token });
 };
 
 exports.getUsers = getUsers;
