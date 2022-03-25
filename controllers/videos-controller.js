@@ -89,23 +89,35 @@ const createVideo = async (req, res, next) => {
     );
   }
   const { title, description, creator } = req.body;
-
+  const imagePath = req.files.image[0].path;
+  const videoPath = req.files.video[0].path;
   //cái này mo phong lúc  uppload video lên s3 rồi lấy video url
-  let uploader;
+  let uploaderImage;
+  let uploaderVideo;
   try {
-    uploader = await cloudinary.uploads(
-      req.file.path,
+    const uploaderImageUrl = cloudinary.uploads(
+      imagePath,
       'Zootube-resources/images/videos-thumbnail'
     );
+    const uploaderVideoUrl = cloudinary.uploads(
+      videoPath,
+      'Zootube-resources/videos'
+    );
+    [uploaderImage, uploaderVideo] = await Promise.all([
+      uploaderImageUrl,
+      uploaderVideoUrl,
+    ]);
   } catch (err) {
+    console.log(err);
     return next(new HttpError('error when upload image', 500));
   } finally {
-    fs.unlink(req.file.path, (err) => {});
+    fs.unlink(imagePath, (err) => {});
+    fs.unlink(videoPath, (err) => {});
   }
 
   let resource = {
-    imageUrl: uploader.url,
-    videoUrl: 'https://www.youtube.com/watch?v=Pv7JKxRd7jo',
+    imageUrl: uploaderImage.url,
+    videoUrl: uploaderVideo.url,
   };
 
   const createdVideo = new Video({
