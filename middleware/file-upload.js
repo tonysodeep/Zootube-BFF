@@ -15,7 +15,7 @@ const MINE_TYPE_MAP_VIDEO_UPLOAD = {
 };
 
 const fileUpload = multer({
-  limits: 500000,
+  limits: 5000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'uploads/images');
@@ -33,7 +33,7 @@ const fileUpload = multer({
 });
 
 const filesUpload = multer({
-  limits: 1000000,
+  limits: 10000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       if (file.fieldname === 'image') {
