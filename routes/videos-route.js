@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 const videoController = require('../controllers/videos-controller');
 
 const checkAuth = require('../middleware/check-auth');
-const filesUpload = require('../middleware/file-upload');
+const fileUploadUtils = require('../middleware/file-upload');
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ router.get('/user/:uid', videoController.getVideosByUserId);
 
 router.post(
   '/',
-  filesUpload.fields([
+  fileUploadUtils.filesUpload.fields([
     {
       name: 'image',
       maxCount: 1,
